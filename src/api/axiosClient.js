@@ -25,12 +25,14 @@ export function adminAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
  
-// For <video>/<img>/<iframe> tags that can't attach an Authorization header,
-// the backend also accepts the JWT as a ?token= query param on file routes.
-export function protectedFileUrl(contentId) {
+export function protectedUrl(relativePath) {
   const token = getUserToken() || getAdminToken()
   const q = token ? `?token=${encodeURIComponent(token)}` : ''
-  return `${API_BASE_URL}/api/content/${contentId}/file${q}`
+  return `${API_BASE_URL}${relativePath}${q}`
+}
+ 
+export function protectedFileUrl(contentId) {
+  return protectedUrl(`/api/content/${contentId}/file`)
 }
  
 export function thumbnailUrl(relativeOrAbsolute) {
@@ -41,9 +43,10 @@ export function thumbnailUrl(relativeOrAbsolute) {
  
 // A plain <a href=... download> is ignored by Chrome for cross-origin URLs
 // (frontend is :5173, this API is :8080), so we fetch the bytes ourselves and
-// save them as a blob instead — that works regardless of origin.
-export async function downloadFile(contentId, fallbackName = 'download') {
-  const response = await fetch(protectedFileUrl(contentId))
+// save them as a blob instead — that works regardless of origin. relativePath
+// is an API path like /api/content/1/file or /api/content/1/files/5.
+export async function downloadFile(relativePath, fallbackName = 'download') {
+  const response = await fetch(protectedUrl(relativePath))
   if (!response.ok) {
     throw new Error('Download failed')
   }

@@ -174,7 +174,7 @@ function Viewer({ item, id }) {
     setDownloadError('')
     setDownloading(true)
     try {
-      await downloadFile(id, item.title)
+      await downloadFile(`/api/content/${id}/file`, item.title)
     } catch (err) {
       setDownloadError('Could not download. Please try again.')
     } finally {
@@ -200,7 +200,49 @@ function Viewer({ item, id }) {
         <DownloadIcon /> {downloading ? 'Downloading...' : 'Download'}
       </button>
       {downloadError && <div className="alert alert-error">{downloadError}</div>}
+
+      {item.extraFiles && item.extraFiles.length > 0 && (
+        <ExtraFilesList contentId={id} files={item.extraFiles} />
+      )}
     </div>
+  )
+}
+
+function ExtraFilesList({ contentId, files }) {
+  return (
+    <div className="extra-files-view">
+      <h3>Also included</h3>
+      <ul className="extra-files-list">
+        {files.map((f) => (
+          <ExtraFileRow key={f.id} contentId={contentId} file={f} />
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function ExtraFileRow({ contentId, file }) {
+  const [downloading, setDownloading] = useState(false)
+
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      await downloadFile(`/api/content/${contentId}/files/${file.id}`, file.label || `file-${file.id}`)
+    } catch (err) {
+      // kept quiet inline — the row itself stays clickable to retry
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  return (
+    <li>
+      <span className="type-badge inline">{file.fileType}</span>
+      <span className="extra-files-label">{file.label || 'Bonus file'}</span>
+      <button className="btn btn-secondary btn-sm" onClick={handleDownload} disabled={downloading}>
+        {downloading ? 'Downloading...' : 'Download'}
+      </button>
+    </li>
   )
 }
 

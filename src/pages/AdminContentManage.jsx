@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import { adminListContent, adminCreateContent, adminUpdateContent, adminDeleteContent } from '../api/admin.js'
+import {
+  adminListContent, adminGetContent, adminCreateContent, adminUpdateContent, adminDeleteContent,
+  adminAddContentFile, adminRemoveContentFile,
+} from '../api/admin.js'
 import { errorMessage, thumbnailUrl } from '../api/axiosClient.js'
 import Loader from '../components/Loader.jsx'
 
@@ -18,6 +21,14 @@ export default function AdminContentManage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
 
+  // Extra files (only relevant once a product exists, i.e. while editing)
+  const [extraFiles, setExtraFiles] = useState([])
+  const [newExtraType, setNewExtraType] = useState('PHOTO')
+  const [newExtraLabel, setNewExtraLabel] = useState('')
+  const [newExtraFile, setNewExtraFile] = useState(null)
+  const [extraSubmitting, setExtraSubmitting] = useState(false)
+  const [extraError, setExtraError] = useState('')
+
   function load() {
     setLoading(true)
     adminListContent()
@@ -34,10 +45,11 @@ export default function AdminContentManage() {
     setThumbFile(null)
     setContentFile(null)
     setFormError('')
+    setExtraFiles([])
     setShowForm(true)
   }
 
-  function openEdit(item) {
+  async function openEdit(item) {
     setEditingId(item.id)
     setForm({
       title: item.title,
@@ -49,7 +61,14 @@ export default function AdminContentManage() {
     setThumbFile(null)
     setContentFile(null)
     setFormError('')
+    setExtraError('')
     setShowForm(true)
+    try {
+      const res = await adminGetContent(item.id)
+      setExtraFiles(res.data.extraFiles || [])
+    } catch {
+      setExtraFiles([])
+    }
   }
 
   async function handleDelete(item) {
@@ -93,6 +112,42 @@ export default function AdminContentManage() {
       setFormError(errorMessage(err, 'Could not save this item.'))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleAddExtraFile(e) {
+    e.preventDefault()
+    setExtraError('')
+    if (!newExtraFile) {
+      setExtraError('Choose a file first.')
+      return
+    }
+    const fd = new FormData()
+    fd.append('fileType', newExtraType)
+    if (newExtraLabel.trim()) fd.append('label', newExtraLabel.trim())
+    fd.append('file', newExtraFile)
+
+    setExtraSubmitting(true)
+    try {
+      const res = await adminAddContentFile(editingId, fd)
+      setExtraFiles(res.data.extraFiles || [])
+      setNewExtraFile(null)
+      setNewExtraLabel('')
+      e.target.reset?.()
+    } catch (err) {
+      setExtraError(errorMessage(err, 'Could not add this file.'))
+    } finally {
+      setExtraSubmitting(false)
+    }
+  }
+
+  async function handleRemoveExtraFile(fileId) {
+    if (!window.confirm('Remove this file from the product?')) return
+    try {
+      const res = await adminRemoveContentFile(editingId, fileId)
+      setExtraFiles(res.data.extraFiles || [])
+    } catch (err) {
+      alert(errorMessage(err, 'Could not remove this file.'))
     }
   }
 
@@ -162,7 +217,7 @@ export default function AdminContentManage() {
               <label>Thumbnail image {editingId && '(leave empty to keep current)'}</label>
               <input type="file" accept="image/*" onChange={(e) => setThumbFile(e.target.files[0])} />
 
-              <label>{form.contentType === 'PDF' ? 'PDF file' : form.contentType === 'PHOTO' ? 'Photo file' : 'Video file'} {editingId && '(leave empty to keep current)'}</label>
+              <label>{form.contentType === 'PDF' ? 'PDF file' : form.contentType === 'PHOTO' ? 'Photo file' : 'Video file'} (main file) {editingId && '(leave empty to keep current)'}</label>
               <input
                 type="file"
                 accept={form.contentType === 'PDF' ? 'application/pdf' : form.contentType === 'PHOTO' ? 'image/*' : 'video/*'}
@@ -183,6 +238,56 @@ export default function AdminContentManage() {
                 </button>
               </div>
             </form>
+
+            {editingId && (
+              <div className="extra-files-section">
+                <h3>Additional files <span className="extra-files-hint">(up to 4 — mix of photos, PDFs, videos)</span></h3>
+
+                {extraFiles.length > 0 && (
+                  <ul className="extra-files-list">
+                    {extraFiles.map((f) => (
+                      <li key={f.id}>
+                        <span className="type-badge inline">{f.fileType}</span>
+                        <span className="extra-files-label">{f.label || `File #${f.id}`}</span>
+                        <button type="button" className="btn btn-danger btn-sm" onClick={() => handleRemoveExtraFile(f.id)}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {extraError && <div className="alert alert-error">{extraError}</div>}
+
+                {extraFiles.length < 4 ? (
+                  <form onSubmit={handleAddExtraFile} className="admin-form extra-files-form">
+                    <div className="form-row">
+                      <div>
+                        <label>File type</label>
+                        <select value={newExtraType} onChange={(e) => setNewExtraType(e.target.value)}>
+                          <option value="PHOTO">Photo</option>
+                          <option value="PDF">PDF</option>
+                          <option value="VIDEO">Video</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label>Label (optional)</label>
+                        <input type="text" placeholder="e.g. Photo 2" value={newExtraLabel} onChange={(e) => setNewExtraLabel(e.target.value)} />
+                      </div>
+                    </div>
+                    <label>File</label>
+                    <input
+                      type="file"
+                      accept={newExtraType === 'PDF' ? 'application/pdf' : newExtraType === 'PHOTO' ? 'image/*' : 'video/*'}
+                      onChange={(e) => setNewExtraFile(e.target.files[0])}
+                    />
+                    <button type="submit" className="btn btn-secondary btn-block" disabled={extraSubmitting}>
+                      {extraSubmitting ? 'Adding...' : '+ Add File'}
+                    </button>
+                  </form>
+                ) : (
+                  <p className="cart-note">Maximum of 4 extra files reached.</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
