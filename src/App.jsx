@@ -22,6 +22,8 @@ import ShippingPolicy from './pages/ShippingPolicy.jsx'
 import ContactUs from './pages/ContactUs.jsx'
 import Cart from './pages/Cart.jsx'
 import Wishlist from './pages/Wishlist.jsx'
+import SellerApply from './pages/SellerApply.jsx'
+import AdminSellers from './pages/AdminSellers.jsx'
 
 function SiteLayout({ children }) {
   return (
@@ -66,6 +68,7 @@ export default function App() {
       <Route path="/library" element={<SiteLayout><ProtectedRoute><MyPurchases /></ProtectedRoute></SiteLayout>} />
       <Route path="/cart" element={<SiteLayout><ProtectedRoute><Cart /></ProtectedRoute></SiteLayout>} />
       <Route path="/wishlist" element={<SiteLayout><ProtectedRoute><Wishlist /></ProtectedRoute></SiteLayout>} />
+      <Route path="/sell" element={<SiteLayout><SellerApply /></SiteLayout>} />
       <Route path="/account" element={<SiteLayout><ProtectedRoute><Account /></ProtectedRoute></SiteLayout>} />
       <Route path="/terms" element={<SiteLayout><TermsAndConditions /></SiteLayout>} />
       <Route path="/privacy-policy" element={<SiteLayout><PrivacyPolicy /></SiteLayout>} />
@@ -78,6 +81,7 @@ export default function App() {
       <Route path="/admin" element={<AdminProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/content" element={<AdminProtectedRoute><AdminLayout><AdminContentManage /></AdminLayout></AdminProtectedRoute>} />
       <Route path="/admin/users" element={<AdminProtectedRoute><AdminLayout><AdminUsers /></AdminLayout></AdminProtectedRoute>} />
+      <Route path="/admin/sellers" element={<AdminProtectedRoute><AdminLayout><AdminSellers /></AdminLayout></AdminProtectedRoute>} />
 
       <Route path="*" element={<SiteLayout><Home /></SiteLayout>} />
     </Routes>

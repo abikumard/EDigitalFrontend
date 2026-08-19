@@ -23,6 +23,7 @@ export default function AdminSidebar() {
         <NavLink to="/admin" end className={linkClass}>Dashboard</NavLink>
         <NavLink to="/admin/content" className={linkClass}>Content</NavLink>
         <NavLink to="/admin/users" className={linkClass}>Users</NavLink>
+        <NavLink to="/admin/sellers" className={linkClass}>Sellers</NavLink>
       </nav>
       <div className="admin-sidebar-footer">
         <span className="admin-email">{admin?.email}</span>

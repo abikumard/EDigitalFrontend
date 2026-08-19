@@ -23,6 +23,11 @@ const UserIcon = () => (
     <circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" />
   </svg>
 )
+const SellIcon = () => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 9 5 3h14l2 6" /><path d="M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9" /><path d="M3 9h18" /><path d="M9 21v-6h6v6" />
+  </svg>
+)
 
 export default function BottomNav() {
   const { isAuthenticated } = useAuth()
@@ -34,6 +39,9 @@ export default function BottomNav() {
       </NavLink>
       <NavLink to="/library" className={({ isActive }) => 'bottom-nav-item' + (isActive ? ' active' : '')}>
         <LibraryIcon /><span>Library</span>
+      </NavLink>
+      <NavLink to="/sell" className={({ isActive }) => 'bottom-nav-item' + (isActive ? ' active' : '')}>
+        <SellIcon /><span>Sell</span>
       </NavLink>
       {isAuthenticated && (
         <NavLink to="/cart" className={({ isActive }) => 'bottom-nav-item' + (isActive ? ' active' : '')}>

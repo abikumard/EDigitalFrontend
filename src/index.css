@@ -523,6 +523,30 @@ input[type="file"] {
 .admin-content-body h3 { font-size: 14px; font-family: var(--font-body); }
 .admin-content-actions { display: flex; gap: 8px; margin-top: 6px; }
 
+/* ============ Admin sellers ============ */
+.admin-sellers-list { display: flex; flex-direction: column; gap: 12px; max-width: 780px; }
+.admin-seller-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+}
+.admin-seller-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.admin-seller-header h3 { font-size: 15px; font-family: var(--font-body); }
+.admin-seller-grid {
+  display: grid; grid-template-columns: 1fr; gap: 10px 16px;
+  padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+@media (min-width: 480px) {
+  .admin-seller-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.admin-seller-grid div { display: flex; flex-direction: column; gap: 2px; }
+.admin-seller-grid span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.02em; }
+.admin-seller-grid strong { font-size: 13.5px; word-break: break-word; }
+
+/* ============ Seller apply form ============ */
+.seller-form { max-width: 480px; }
+.sell-link { color: var(--accent) !important; }
+
 /* ============ Modal ============ */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(8, 7, 12, 0.6);
@@ -537,7 +561,10 @@ input[type="file"] {
 }
 .admin-form { display: flex; flex-direction: column; gap: 6px; }
 .admin-form label { font-size: 12.5px; color: var(--text-muted); font-weight: 600; margin-top: 10px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row { display: grid; grid-template-columns: 1fr; gap: 4px 12px; }
+@media (min-width: 480px) {
+  .form-row { grid-template-columns: 1fr 1fr; }
+}
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 
 /* ============ Responsive: tablet/desktop ============ */

@@ -21,6 +21,7 @@ export default function Navbar() {
 
       <nav className="navbar-links">
         <Link to="/">Browse</Link>
+        <Link to="/sell" className="sell-link">Sell on MediaVault</Link>
         {isAuthenticated && <Link to="/library">My Library</Link>}
         {isAuthenticated && <Link to="/wishlist">Wishlist</Link>}
         {isAuthenticated && (

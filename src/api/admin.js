@@ -30,6 +30,15 @@ export const adminAddContentFile = (id, formData) =>
 export const adminRemoveContentFile = (id, fileId) =>
   apiClient.delete(`/api/admin/content/${id}/files/${fileId}`, { headers: adminAuthHeader() })
 
+export const adminListSellers = () =>
+  apiClient.get('/api/admin/sellers', { headers: adminAuthHeader() })
+
+export const adminApproveSeller = (id) =>
+  apiClient.post(`/api/admin/sellers/${id}/approve`, {}, { headers: adminAuthHeader() })
+
+export const adminRejectSeller = (id, reason) =>
+  apiClient.post(`/api/admin/sellers/${id}/reject`, { reason }, { headers: adminAuthHeader() })
+
 export const adminStats = () =>
   apiClient.get('/api/admin/dashboard/stats', { headers: adminAuthHeader() })
 
