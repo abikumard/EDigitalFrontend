@@ -4,6 +4,7 @@ import { applySeller, getSellerStatus } from '../api/seller.js'
 import { errorMessage } from '../api/axiosClient.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import Loader from '../components/Loader.jsx'
+import SellerProductManager from '../components/SellerProductManager.jsx'
 
 const emptyForm = {
   businessName: '', accountHolderName: '', bankAccountNumber: '', ifscCode: '',
@@ -88,7 +89,10 @@ export default function SellerApply() {
           <p className="empty-state">Your application is under review. We'll get back to you soon.</p>
         )}
         {status.status === 'APPROVED' && (
-          <div className="alert alert-success">You're an approved seller! Product upload tools are coming in the next update.</div>
+          <div style={{ marginTop: 24 }}>
+            <div className="alert alert-success">You're an approved seller — manage your products below.</div>
+            <SellerProductManager />
+          </div>
         )}
         {status.status === 'REJECTED' && (
           <div className="alert alert-error">

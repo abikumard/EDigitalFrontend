@@ -124,6 +124,7 @@ export default function ContentDetail() {
           <span className="type-badge standalone">{typeLabels[item.contentType] || item.contentType}</span>
           <h1>{item.title}</h1>
           <p className="detail-description">{item.description}</p>
+          {item.sellerName && <p className="sold-by">Sold by {item.sellerName}</p>}
 
           {error && <div className="alert alert-error">{error}</div>}
 

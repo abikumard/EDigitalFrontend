@@ -67,6 +67,7 @@ export default function ContentCard({ item }) {
       <div className="content-card-body">
         <h3>{item.title}</h3>
         <p className="content-card-desc">{item.description}</p>
+        {item.sellerName && <p className="sold-by">Sold by {item.sellerName}</p>}
         {item.purchasedAt && (
           <p className="content-card-purchased">
             Purchased on {new Date(item.purchasedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
-  adminListContent, adminGetContent, adminCreateContent, adminUpdateContent, adminDeleteContent,
-  adminAddContentFile, adminRemoveContentFile,
-} from '../api/admin.js'
+  sellerListProducts, sellerCreateProduct, sellerUpdateProduct, sellerDeleteProduct,
+  sellerAddProductFile, sellerRemoveProductFile,
+} from '../api/sellerProducts.js'
 import { errorMessage, thumbnailUrl } from '../api/axiosClient.js'
-import Loader from '../components/Loader.jsx'
+import Loader from './Loader.jsx'
 
 const emptyForm = { title: '', description: '', price: '', contentType: 'VIDEO', active: true }
 
-export default function AdminContentManage() {
+export default function SellerProductManager() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -21,7 +21,6 @@ export default function AdminContentManage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState('')
 
-  // Extra files (only relevant once a product exists, i.e. while editing)
   const [extraFiles, setExtraFiles] = useState([])
   const [newExtraType, setNewExtraType] = useState('PHOTO')
   const [newExtraLabel, setNewExtraLabel] = useState('')
@@ -31,7 +30,7 @@ export default function AdminContentManage() {
 
   function load() {
     setLoading(true)
-    adminListContent()
+    sellerListProducts()
       .then((res) => setItems(res.data))
       .catch((err) => setError(errorMessage(err)))
       .finally(() => setLoading(false))
@@ -49,7 +48,7 @@ export default function AdminContentManage() {
     setShowForm(true)
   }
 
-  async function openEdit(item) {
+  function openEdit(item) {
     setEditingId(item.id)
     setForm({
       title: item.title,
@@ -62,19 +61,14 @@ export default function AdminContentManage() {
     setContentFile(null)
     setFormError('')
     setExtraError('')
+    setExtraFiles(item.extraFiles || [])
     setShowForm(true)
-    try {
-      const res = await adminGetContent(item.id)
-      setExtraFiles(res.data.extraFiles || [])
-    } catch {
-      setExtraFiles([])
-    }
   }
 
   async function handleDelete(item) {
     if (!window.confirm(`Delete "${item.title}"? This cannot be undone.`)) return
     try {
-      await adminDeleteContent(item.id)
+      await sellerDeleteProduct(item.id)
       load()
     } catch (err) {
       alert(errorMessage(err, 'Could not delete this item.'))
@@ -102,9 +96,9 @@ export default function AdminContentManage() {
     setSubmitting(true)
     try {
       if (editingId) {
-        await adminUpdateContent(editingId, fd)
+        await sellerUpdateProduct(editingId, fd)
       } else {
-        await adminCreateContent(fd)
+        await sellerCreateProduct(fd)
       }
       setShowForm(false)
       load()
@@ -129,7 +123,7 @@ export default function AdminContentManage() {
 
     setExtraSubmitting(true)
     try {
-      const res = await adminAddContentFile(editingId, fd)
+      const res = await sellerAddProductFile(editingId, fd)
       setExtraFiles(res.data.extraFiles || [])
       setNewExtraFile(null)
       setNewExtraLabel('')
@@ -144,7 +138,7 @@ export default function AdminContentManage() {
   async function handleRemoveExtraFile(fileId) {
     if (!window.confirm('Remove this file from the product?')) return
     try {
-      const res = await adminRemoveContentFile(editingId, fileId)
+      const res = await sellerRemoveProductFile(editingId, fileId)
       setExtraFiles(res.data.extraFiles || [])
     } catch (err) {
       alert(errorMessage(err, 'Could not remove this file.'))
@@ -154,16 +148,16 @@ export default function AdminContentManage() {
   return (
     <div>
       <div className="page-header-row">
-        <h1 className="page-title">Content</h1>
-        <button className="btn btn-primary" onClick={openCreate}>+ Add New Content</button>
+        <h2 className="section-title">Your Products</h2>
+        <button className="btn btn-primary" onClick={openCreate}>+ Add Product</button>
       </div>
 
-      {loading && <Loader label="Loading content..." />}
+      {loading && <Loader label="Loading your products..." />}
       {error && <div className="alert alert-error">{error}</div>}
 
       {!loading && !error && (
         items.length === 0 ? (
-          <div className="empty-state"><p>Nothing uploaded yet. Click "Add New Content" to get started.</p></div>
+          <div className="empty-state"><p>You haven't listed anything yet. Click "Add Product" to get started.</p></div>
         ) : (
           <div className="admin-content-grid">
             {items.map((item) => (
@@ -172,7 +166,6 @@ export default function AdminContentManage() {
                 <div className="admin-content-body">
                   <span className="type-badge inline">{item.contentType}</span>
                   <h3>{item.title}</h3>
-                  <p className="sold-by">{item.sellerName ? `Seller: ${item.sellerName}` : 'Platform product'}</p>
                   <p className="price-tag">₹{Number(item.price).toFixed(0)}</p>
                   <span className={'status-pill ' + (item.active ? 'unlocked' : 'locked')}>
                     {item.active ? 'Active' : 'Inactive'}
@@ -191,7 +184,7 @@ export default function AdminContentManage() {
       {showForm && (
         <div className="modal-overlay" onClick={() => setShowForm(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <h2>{editingId ? 'Edit Content' : 'Add New Content'}</h2>
+            <h2>{editingId ? 'Edit Product' : 'Add Product'}</h2>
             {formError && <div className="alert alert-error">{formError}</div>}
             <form onSubmit={handleSubmit} className="admin-form">
               <label>Title</label>
@@ -228,7 +221,7 @@ export default function AdminContentManage() {
               {editingId && (
                 <label className="checkbox-row">
                   <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />
-                  Active (visible to users)
+                  Active (visible to shoppers)
                 </label>
               )}
 
