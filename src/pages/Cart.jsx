@@ -31,11 +31,11 @@ export default function Cart() {
         key: data.razorpayKeyId,
         amount: data.amountInPaise,
         currency: data.currency,
-        name: 'MediaVault',
+        name: 'DigitalDeals Pro',
         description: `${data.itemCount} item(s) from your cart`,
         order_id: data.razorpayOrderId,
-        prefill: { email: user?.email },
-        theme: { color: '#2563eb' },
+        prefill: { email: user?.email, contact: user?.mobile },
+        theme: { color: '#0284c7' },
         handler: async function (response) {
           try {
             await verifyCartPayment({

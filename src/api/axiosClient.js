@@ -4,7 +4,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://edigit
  
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000,
 })
  
 export function getUserToken() {
@@ -71,7 +71,22 @@ export async function downloadFile(relativePath, fallbackName = 'download') {
   window.URL.revokeObjectURL(blobUrl)
 }
  
-// Friendly error message extraction
+// Friendly error message extraction with timeout and cloud-wake detection
 export function errorMessage(err, fallback = 'Something went wrong. Please try again.') {
-  return err?.response?.data?.message || fallback
+  if (err?.response?.data?.message) {
+    return err.response.data.message
+  }
+  if (err?.response?.data?.error) {
+    return err.response.data.error
+  }
+  if (typeof err?.response?.data === 'string' && err.response.data.trim()) {
+    return err.response.data
+  }
+  if (err?.code === 'ECONNABORTED' || err?.message?.toLowerCase().includes('timeout')) {
+    return 'The server took too long to respond (cloud is waking up). Please retry in a few seconds.'
+  }
+  if (err?.message === 'Network Error') {
+    return 'Network connection issue. The cloud server may be starting up, please try again in a few seconds.'
+  }
+  return err?.message || fallback
 }

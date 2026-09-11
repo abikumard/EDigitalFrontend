@@ -3,7 +3,7 @@
 // These are used on the Contact Us, Terms, Refund and Shipping pages —
 // edit them here once and they update everywhere.
 
-export const BUSINESS_NAME = 'MediaVault'
+export const BUSINESS_NAME = 'DigitalDeals Pro'
 
 // Exact legal name as per your Razorpay KYC documents (PAN / GST / bank account)
 export const BUSINESS_LEGAL_NAME = 'AbiStudio Private Limited'

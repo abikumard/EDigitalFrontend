@@ -6,14 +6,14 @@ import { useAuth } from '../context/AuthContext.jsx'
 import PasswordInput from '../components/PasswordInput.jsx'
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState('')
+  const location = useLocation()
+  const [identifier, setIdentifier] = useState(location.state?.identifier || '')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
   const { login } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const redirectTo = location.state?.from || '/'
   const justSignedUp = Boolean(location.state?.justSignedUp)
 
@@ -44,9 +44,14 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <Link to="/" className="admin-back-link">← Back to site</Link>
+        <Link to="/" className="admin-back-link">← Back to Store</Link>
         <div className="auth-header">
-          <span className="brand-mark lg">MV</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
+            <span style={{ fontSize: '1.8rem' }}>📚</span>
+            <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-primary-dark, #0284c7)', letterSpacing: '-0.02em' }}>
+              DigitalDeals
+            </span>
+          </div>
           <h1>Welcome back</h1>
           <p>Log in with your email or mobile number.</p>
         </div>
