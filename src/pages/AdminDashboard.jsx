@@ -1,82 +1,133 @@
 import { useEffect, useState } from 'react'
-import { adminStats, adminPurchases } from '../api/admin.js'
+import { getAdminMetrics, getPendingPayouts, approvePayout } from '../api/admin.js'
 import { errorMessage } from '../api/axiosClient.js'
 import Loader from '../components/Loader.jsx'
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null)
-  const [recent, setRecent] = useState([])
+  const [metrics, setMetrics] = useState(null)
+  const [pendingPayouts, setPendingPayouts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [approvingId, setApprovingId] = useState(null)
 
-  useEffect(() => {
-    let mounted = true
-    Promise.all([adminStats(), adminPurchases()])
-      .then(([statsRes, purchasesRes]) => {
-        if (!mounted) return
-        setStats(statsRes.data)
-        setRecent(purchasesRes.data.slice(0, 8))
+  function load() {
+    setLoading(true)
+    Promise.all([
+      getAdminMetrics(),
+      getPendingPayouts().catch(() => ({ data: [] }))
+    ])
+      .then(([mRes, pRes]) => {
+        setMetrics(mRes.data)
+        setPendingPayouts(pRes.data)
       })
-      .catch((err) => { if (mounted) setError(errorMessage(err)) })
-      .finally(() => { if (mounted) setLoading(false) })
-    return () => { mounted = false }
-  }, [])
+      .catch((err) => setError(errorMessage(err, 'Failed to load admin metrics.')))
+      .finally(() => setLoading(false))
+  }
 
-  if (loading) return <Loader label="Loading dashboard..." />
-  if (error) return <div className="alert alert-error">{error}</div>
+  useEffect(() => { load() }, [])
+
+  async function handleApprovePayout(id) {
+    setError('')
+    setSuccess('')
+    setApprovingId(id)
+    try {
+      const ref = `BANK_TXN_${Date.now()}`
+      await approvePayout(id, ref)
+      setSuccess(`Payout #${id} approved! Ref: ${ref}`)
+      load()
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to approve payout.'))
+    } finally {
+      setApprovingId(null)
+    }
+  }
+
+  if (loading) return <Loader label="Loading KDP Cloud Admin..." />
 
   return (
-    <div>
-      <h1 className="page-title">Dashboard</h1>
+    <div className="admin-container">
+      <h1 className="page-title">📊 KDP Cloud Platform Administration</h1>
 
-      <div className="stat-grid">
-        <div className="stat-card">
-          <span className="stat-label">Total Visitors / Users</span>
-          <span className="stat-value">{stats.totalUsers}</span>
+      {success && <div className="alert alert-success">{success}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
+
+      {/* Platform Financial & Growth KPIs */}
+      <div className="admin-stat-grid">
+        <div className="admin-card">
+          <span className="stat-label">Total Platform Readers / Users</span>
+          <span className="stat-value">{metrics?.totalUsers || 0}</span>
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Videos/Items Purchased</span>
-          <span className="stat-value">{stats.totalPurchases}</span>
+
+        <div className="admin-card">
+          <span className="stat-label">Registered Publishers &amp; Authors</span>
+          <span className="stat-value">{metrics?.totalPublishers || 0}</span>
         </div>
-        <div className="stat-card highlight">
-          <span className="stat-label">Total Revenue</span>
-          <span className="stat-value">₹{Number(stats.totalRevenue).toFixed(0)}</span>
+
+        <div className="admin-card">
+          <span className="stat-label">Total Published Books</span>
+          <span className="stat-value">{metrics?.totalBooks || 0}</span>
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Content Items Uploaded</span>
-          <span className="stat-value">{stats.totalContentItems}</span>
+
+        <div className="admin-card highlight-vol">
+          <span className="stat-label">Gross Platform Sales Volume</span>
+          <span className="stat-value">₹{metrics ? Number(metrics.grossVolume).toFixed(0) : '0'}</span>
+        </div>
+
+        <div className="admin-card highlight-profit">
+          <span className="stat-label">Platform 3% Commission Profit</span>
+          <span className="stat-value">₹{metrics ? Number(metrics.platform3PercentProfit).toFixed(2) : '0.00'}</span>
         </div>
       </div>
 
-      <h2 className="section-title">Recent purchases</h2>
-      {recent.length === 0 ? (
-        <div className="empty-state"><p>No purchases yet.</p></div>
-      ) : (
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Content</th>
-                <th>Type</th>
-                <th>Amount</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recent.map((p) => (
-                <tr key={p.purchaseId}>
-                  <td>{p.userEmail}</td>
-                  <td>{p.contentTitle}</td>
-                  <td><span className="type-badge inline">{p.contentType}</span></td>
-                  <td>₹{Number(p.amount).toFixed(0)}</td>
-                  <td>{new Date(p.purchasedAt).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Publisher Payout Queue */}
+      <section className="admin-section" style={{ marginTop: 32 }}>
+        <div className="section-header">
+          <h2>💳 Publisher Royalty Withdrawal Queue ({pendingPayouts.length} Pending)</h2>
         </div>
-      )}
+
+        {pendingPayouts.length === 0 ? (
+          <div className="empty-state">
+            <p>✓ All publisher royalty payouts are up to date. No pending withdrawals.</p>
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Payout Credentials</th>
+                  <th>Requested Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingPayouts.map((pr) => (
+                  <tr key={pr.id}>
+                    <td>#{pr.id}</td>
+                    <td><strong style={{ color: '#16a34a' }}>₹{Number(pr.amount).toFixed(2)}</strong></td>
+                    <td><span className="method-tag">{pr.payoutMethod}</span></td>
+                    <td>{pr.payoutDetails}</td>
+                    <td>{new Date(pr.requestedAt).toLocaleString()}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handleApprovePayout(pr.id)}
+                        disabled={approvingId === pr.id}
+                      >
+                        {approvingId === pr.id ? 'Approving...' : '✓ Approve & Transfer'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

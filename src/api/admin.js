@@ -3,6 +3,18 @@ import { apiClient, adminAuthHeader } from './axiosClient'
 export const adminLogin = (email, password) =>
   apiClient.post('/api/admin/auth/login', { email, password })
 
+export const getAdminMetrics = () =>
+  apiClient.get('/api/admin/metrics', { headers: adminAuthHeader() })
+
+export const getPendingPayouts = () =>
+  apiClient.get('/api/admin/payouts/pending', { headers: adminAuthHeader() })
+
+export const approvePayout = (id, transactionRef) =>
+  apiClient.post(`/api/admin/payouts/${id}/approve`, null, {
+    params: { transactionRef },
+    headers: adminAuthHeader()
+  })
+
 export const adminListContent = () =>
   apiClient.get('/api/admin/content', { headers: adminAuthHeader() })
 
@@ -40,7 +52,7 @@ export const adminRejectSeller = (id, reason) =>
   apiClient.post(`/api/admin/sellers/${id}/reject`, { reason }, { headers: adminAuthHeader() })
 
 export const adminStats = () =>
-  apiClient.get('/api/admin/dashboard/stats', { headers: adminAuthHeader() })
+  apiClient.get('/api/admin/metrics', { headers: adminAuthHeader() })
 
 export const adminUsers = () =>
   apiClient.get('/api/admin/users', { headers: adminAuthHeader() })
@@ -50,3 +62,4 @@ export const adminUserDetail = (id) =>
 
 export const adminPurchases = () =>
   apiClient.get('/api/admin/purchases', { headers: adminAuthHeader() })
+
