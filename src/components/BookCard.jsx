@@ -6,17 +6,6 @@ import { useWishlist } from '../context/WishlistContext.jsx'
 import { useCart } from '../context/CartContext.jsx'
 import BookReader from './BookReader.jsx'
 
-const StarRating = ({ rating = 4.9, count = 42 }) => (
-  <div className="rating-container" title={`${rating} out of 5 stars`}>
-    <div className="stars-gold">
-      {'★'.repeat(Math.round(rating))}
-      {'☆'.repeat(5 - Math.round(rating))}
-    </div>
-    <span className="rating-score">{Number(rating).toFixed(1)}</span>
-    <span className="rating-count">({count})</span>
-  </div>
-)
-
 export default function BookCard({ item }) {
   const { isAuthenticated } = useAuth()
   const wishlist = useWishlist()
@@ -50,24 +39,29 @@ export default function BookCard({ item }) {
 
   return (
     <>
-      <div className="kdp-book-card">
-        {/* 3D Book Cover Wrapper */}
-        <div className="book-cover-wrapper">
-          <Link to={`/content/${item.id}`} className="book-cover-link">
-            <div className="book-3d">
-              <img src={coverImage} alt={item.title} className="book-cover-img" loading="lazy" />
-              <div className="book-spine-shine" />
-            </div>
+      <div className="modern-book-card">
+        {/* Card Header Media */}
+        <div className="card-media-wrapper">
+          <Link to={`/content/${item.id}`} className="card-cover-link">
+            <img src={coverImage} alt={item.title} className="card-cover-img" loading="lazy" />
+            <div className="cover-glow-backdrop" />
           </Link>
 
-          <button type="button" className="look-inside-badge" onClick={handleLookInside}>
-            <span>👁 Look Inside</span>
+          <span className="card-category-tag">{item.category || 'Digital eBook'}</span>
+
+          <button
+            type="button"
+            className="card-quick-read-btn"
+            onClick={handleLookInside}
+            title="Preview Free Sample"
+          >
+            <span>📖 Read Sample</span>
           </button>
 
           {isAuthenticated && (
             <button
               type="button"
-              className={`book-wishlist-btn ${wishlisted ? 'active' : ''}`}
+              className={`card-wishlist-toggle ${wishlisted ? 'active' : ''}`}
               onClick={handleWishlistClick}
               aria-label="Wishlist"
             >
@@ -76,44 +70,50 @@ export default function BookCard({ item }) {
           )}
         </div>
 
-        {/* Book Details */}
-        <div className="book-card-info">
-          <span className="book-category-pill">{item.category || 'Kindle Edition'}</span>
+        {/* Card Body */}
+        <div className="card-body">
+          <div className="rating-pill">
+            <span className="star">★</span>
+            <span className="score">{Number(item.averageRating || 4.9).toFixed(1)}</span>
+            <span className="reviews">({item.reviewCount || 42})</span>
+          </div>
 
-          <h3 className="book-title">
+          <h3 className="card-title">
             <Link to={`/content/${item.id}`}>{item.title}</Link>
           </h3>
 
-          <p className="book-author">by <span className="author-name">{item.authorName || item.sellerName || 'Abikumar Dharmaraj'}</span></p>
+          <p className="card-author">By <span>{item.authorName || item.sellerName || 'Abikumar Dharmaraj'}</span></p>
 
-          <StarRating rating={item.averageRating || 4.9} count={item.reviewCount || 48} />
+          <p className="card-excerpt">
+            {item.description ? item.description.slice(0, 110) + '...' : ''}
+          </p>
 
-          {/* Pricing formats */}
-          <div className="book-pricing-grid">
-            <div className="pricing-box active">
-              <span className="format-title">Kindle Edition</span>
-              <span className="format-price">₹{Number(item.price).toFixed(0)}</span>
+          {/* Pricing & Formats */}
+          <div className="card-price-row">
+            <div className="price-tag-wrap">
+              <span className="price-currency">₹</span>
+              <span className="price-val">{Number(item.price).toFixed(0)}</span>
+              <span className="price-type">eBook</span>
             </div>
             {item.paperbackPrice && (
-              <div className="pricing-box">
-                <span className="format-title">Paperback</span>
-                <span className="format-price">₹{Number(item.paperbackPrice).toFixed(0)}</span>
-              </div>
+              <span className="print-pill">Print: ₹{Number(item.paperbackPrice).toFixed(0)}</span>
             )}
           </div>
 
-          <div className="book-card-actions">
-            <Link to={`/content/${item.id}`} className="btn btn-primary btn-sm btn-block">
-              {item.purchased ? '📖 Read Now' : '⚡ 1-Click Buy'}
+          {/* Action Button */}
+          <div className="card-actions-row">
+            <Link to={`/content/${item.id}`} className="btn-modern-buy">
+              {item.purchased ? '📖 Read Now' : 'Instant Unlock ⚡'}
             </Link>
             {isAuthenticated && !item.purchased && (
               <button
                 type="button"
-                className="btn btn-secondary btn-sm btn-block"
+                className={`btn-modern-cart ${inCart ? 'in-cart' : ''}`}
                 onClick={handleCartClick}
                 disabled={inCart}
+                title={inCart ? 'In Cart' : 'Add to Cart'}
               >
-                {inCart ? '✓ In Cart' : '🛒 Add to Cart'}
+                {inCart ? '✓' : '🛒'}
               </button>
             )}
           </div>

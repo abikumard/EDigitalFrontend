@@ -7,11 +7,11 @@ import BookReader from '../components/BookReader.jsx'
 import Loader from '../components/Loader.jsx'
 
 const CATEGORIES = [
-  'All eBooks',
-  'AI & Technology',
-  'Health & Mindset',
-  'Self-Help & Wellness',
-  'Psychology & Healing'
+  { id: '', label: '✨ All Blueprints' },
+  { id: 'AI & Technology', label: '🤖 AI & Automation' },
+  { id: 'Health & Mindset', label: '🧠 Dopamine & Focus' },
+  { id: 'Self-Help & Wellness', label: '🧘 Somatic & Vagus Nerve' },
+  { id: 'Psychology & Healing', label: '🌙 Shadow Work & Healing' }
 ]
 
 export default function Home() {
@@ -29,148 +29,168 @@ export default function Home() {
     setLoading(true)
     listContent(activeCategory, searchQuery)
       .then((res) => { if (mounted) setItems(res.data) })
-      .catch((err) => { if (mounted) setError(errorMessage(err, 'Could not load Kindle catalogue.')) })
+      .catch((err) => { if (mounted) setError(errorMessage(err, 'Could not load bookstore.')) })
       .finally(() => { if (mounted) setLoading(false) })
     return () => { mounted = false }
   }, [activeCategory, searchQuery])
 
-  function selectCategory(cat) {
-    if (cat === 'All eBooks' || !cat) {
+  function selectCategory(catId) {
+    if (!catId) {
       searchParams.delete('category')
     } else {
-      searchParams.set('category', cat)
+      searchParams.set('category', catId)
     }
     setSearchParams(searchParams)
   }
 
-  // Find hero book (The 2-Hour AI Side Hustle or first item)
+  // Spotlight Book (The 2-Hour AI Side Hustle or 1st book)
   const heroBook = items.find((b) => b.title?.includes('2-Hour AI Side Hustle')) || items[0]
 
   return (
-    <div className="kindle-home-container">
-      {/* Hero Showcase Banner */}
+    <div className="modern-home-wrapper">
+      {/* LUXURY CREATOR SPOTLIGHT HERO */}
       {!searchQuery && !activeCategory && heroBook && (
-        <section className="kindle-hero-showcase">
-          <div className="hero-grid">
-            <div className="hero-text-content">
-              <span className="hero-badge">🔥 #1 BESTSELLER IN ARTIFICIAL INTELLIGENCE &amp; SIDE HUSTLES</span>
-              <h1 className="hero-title">{heroBook.title}</h1>
-              <p className="hero-subtitle">{heroBook.subtitle}</p>
-              <p className="hero-byline">By <span className="author-highlight">{heroBook.authorName || 'Abikumar Dharmaraj'}</span> (Author)</p>
-
-              <div className="hero-meta-row">
-                <span className="meta-tag">★ 4.9 Rating (48 Reviews)</span>
-                <span className="meta-tag">36 Pages • 2026 Print Edition</span>
-                <span className="meta-tag">Instant In-Browser Kindle Delivery</span>
+        <section className="modern-hero-section">
+          <div className="hero-glow-sphere" />
+          <div className="hero-content-container">
+            <div className="hero-text-block">
+              <div className="hero-pill-badge">
+                <span className="badge-pulse" />
+                <span>#1 FEATURED BLUEPRINT • 2026 EDITION</span>
               </div>
 
-              <p className="hero-desc">
+              <h1 className="hero-main-title">{heroBook.title}</h1>
+              <p className="hero-sub-title">{heroBook.subtitle}</p>
+
+              <div className="hero-author-byline">
+                <span>Authored by</span>
+                <strong className="author-highlight">{heroBook.authorName || 'Abikumar Dharmaraj'}</strong>
+                <span className="verified-author">✓ Verified Author</span>
+              </div>
+
+              <div className="hero-tags-row">
+                <span className="hero-tag">★ 4.9 Rating (48 Reviews)</span>
+                <span className="hero-tag">36 Pages • Complete System</span>
+                <span className="hero-tag">Instant In-Browser Reading</span>
+              </div>
+
+              <p className="hero-synopsis">
                 {heroBook.description}
               </p>
 
-              <div className="hero-cta-group">
-                <Link to={`/content/${heroBook.id}`} className="btn btn-primary btn-lg hero-buy-btn">
-                  ⚡ 1-Click Buy Kindle Edition (₹{Number(heroBook.price).toFixed(0)})
+              <div className="hero-buttons-row">
+                <Link to={`/content/${heroBook.id}`} className="btn-hero-primary">
+                  <span>Instant Unlock (₹{Number(heroBook.price).toFixed(0)})</span>
+                  <span className="arrow">→</span>
                 </Link>
                 <button
                   type="button"
-                  className="btn btn-secondary btn-lg hero-sample-btn"
+                  className="btn-hero-secondary"
                   onClick={() => setHeroSampleOpen(true)}
                 >
-                  👁 Read Free Sample
+                  <span>👁 Read Free Sample</span>
                 </button>
               </div>
             </div>
 
-            <div className="hero-cover-column">
-              <div className="hero-cover-3d" onClick={() => setHeroSampleOpen(true)}>
+            {/* 3D Floating Book Cover Showcase */}
+            <div className="hero-cover-block">
+              <div className="floating-cover-card" onClick={() => setHeroSampleOpen(true)}>
                 <img
                   src={heroBook.thumbnailUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'}
                   alt={heroBook.title}
-                  className="hero-3d-img"
+                  className="hero-book-img"
                 />
-                <div className="hero-ribbon">LOOK INSIDE</div>
+                <div className="cover-read-pill">
+                  <span>✦ Click to Read Sample</span>
+                </div>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Platform Value Proposition Bar */}
-      <section className="platform-highlights-bar">
-        <div className="highlight-item">
-          <span className="hl-icon">⚡</span>
-          <div>
-            <strong>Instant Cloud Reading</strong>
-            <p>Read in any web browser without downloading bulky apps</p>
+      {/* PLATFORM VALUE HIGHLIGHTS */}
+      <section className="modern-values-grid">
+        <div className="val-card">
+          <div className="val-icon-box">⚡</div>
+          <div className="val-text">
+            <strong>Instant In-Browser Reading</strong>
+            <p>Read seamlessly on any device without installing apps</p>
           </div>
         </div>
-        <div className="highlight-item">
-          <span className="hl-icon">💰</span>
-          <div>
-            <strong>97% Author Royalties</strong>
-            <p>Direct publisher payouts with industry-lowest 3% platform fee</p>
+
+        <div className="val-card">
+          <div className="val-icon-box">💰</div>
+          <div className="val-text">
+            <strong>97% Direct Author Royalties</strong>
+            <p>Industry-leading creator payouts with a flat 3% platform fee</p>
           </div>
         </div>
-        <div className="highlight-item">
-          <span className="hl-icon">🔒</span>
-          <div>
-            <strong>Razorpay Secure Checkout</strong>
-            <p>UPI, Cards, NetBanking, and Wallets protected by bank-grade SSL</p>
+
+        <div className="val-card">
+          <div className="val-icon-box">🔒</div>
+          <div className="val-text">
+            <strong>Razorpay Instant Checkout</strong>
+            <p>UPI, Cards, and NetBanking protected with 256-bit encryption</p>
           </div>
         </div>
-        <div className="highlight-item">
-          <span className="hl-icon">📚</span>
-          <div>
-            <strong>Multi-Format Access</strong>
-            <p>Read online or download print-ready PDF interior editions</p>
+
+        <div className="val-card">
+          <div className="val-icon-box">🚀</div>
+          <div className="val-text">
+            <strong>Creator Publishing Studio</strong>
+            <p>Self-publish eBooks and launch digital revenue streams</p>
           </div>
         </div>
       </section>
 
-      {/* Category Pills Filter */}
-      <section className="category-filter-section">
-        <div className="category-pills">
-          {CATEGORIES.map((cat) => {
-            const isSelected = (cat === 'All eBooks' && !activeCategory) || activeCategory === cat
+      {/* CATEGORY FILTER PILLS */}
+      <section className="modern-filter-bar">
+        <div className="filter-pills-wrap">
+          {CATEGORIES.map((c) => {
+            const isSelected = activeCategory === c.id || (!activeCategory && c.id === '')
             return (
               <button
-                key={cat}
+                key={c.id}
                 type="button"
-                className={`category-pill ${isSelected ? 'active' : ''}`}
-                onClick={() => selectCategory(cat)}
+                className={`filter-pill-btn ${isSelected ? 'active' : ''}`}
+                onClick={() => selectCategory(c.id)}
               >
-                {cat}
+                {c.label}
               </button>
             )
           })}
         </div>
       </section>
 
-      {/* Main Books Catalog */}
-      <section className="catalogue-section">
-        <div className="section-header">
-          <h2>
-            {searchQuery ? `Search Results for "${searchQuery}"` : activeCategory ? `${activeCategory} Bestsellers` : 'Featured Kindle & KDP Bestsellers'}
-          </h2>
-          <span className="catalog-count">{items.length} Titles Available</span>
+      {/* CATALOGUE GRID */}
+      <section className="modern-catalog-section">
+        <div className="catalog-header-row">
+          <div>
+            <h2 className="catalog-title">
+              {searchQuery ? `Search Results for "${searchQuery}"` : activeCategory ? `${activeCategory} Collection` : 'Curated Best-Selling eBooks'}
+            </h2>
+            <p className="catalog-sub">High-impact, actionable digital books authored for peak performance and income automation.</p>
+          </div>
+          <span className="total-books-counter">{items.length} Titles</span>
         </div>
 
-        {loading && <Loader label="Loading Kindle bookstore..." />}
+        {loading && <Loader label="Loading library collection..." />}
         {error && <div className="alert alert-error">{error}</div>}
 
         {!loading && !error && (
           items.length === 0 ? (
-            <div className="empty-catalog-state">
+            <div className="empty-catalog-card">
               <span className="empty-icon">📖</span>
               <h3>No matching eBooks found</h3>
-              <p>Try searching for different keywords or clear the category filters.</p>
-              <button type="button" className="btn btn-primary" onClick={() => selectCategory('All eBooks')}>
-                Browse All eBooks
+              <p>Try searching for different keywords or explore other categories.</p>
+              <button type="button" className="btn-hero-primary" onClick={() => selectCategory('')}>
+                Explore All eBooks
               </button>
             </div>
           ) : (
-            <div className="kdp-book-grid">
+            <div className="modern-book-grid">
               {items.map((item) => (
                 <BookCard key={item.id} item={item} />
               ))}
@@ -179,7 +199,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* Look Inside Modal for Hero Book */}
+      {/* Hero Sample Reader Modal */}
       {heroSampleOpen && heroBook && (
         <BookReader
           title={heroBook.title}

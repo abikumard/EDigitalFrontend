@@ -33,29 +33,32 @@ function SiteLayout({ children }) {
       <Navbar />
       <main className="site-main">{children}</main>
       <BottomNav />
-      <footer className="kindle-footer">
-        <div className="footer-top-row">
-          <div className="footer-brand-col">
-            <span className="footer-brand-title">📖 KDP Cloud • Self-Publishing Marketplace</span>
-            <p className="footer-brand-sub">Direct digital self-publishing platform with 97% author royalties &amp; global in-browser Kindle distribution.</p>
+      <footer className="modern-footer">
+        <div className="footer-top">
+          <div className="footer-brand-info">
+            <span className="brand-name">⚡ DigitalDeals</span>
+            <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>
+              Digital self-publishing &amp; creator eBook marketplace. 97% royalties paid directly to authors.
+            </p>
           </div>
-          <div className="footer-admin-link-box">
-            <Link to="/admin/login" className="footer-admin-btn">Admin Portal</Link>
-          </div>
+          <Link to="/admin/login" className="btn-hero-secondary" style={{ padding: '8px 16px', fontSize: '12.5px' }}>
+            Admin Portal
+          </Link>
         </div>
 
-        <nav className="footer-links">
-          <Link to="/">Kindle Store</Link>
-          <Link to="/kdp">KDP Author Studio</Link>
-          <Link to="/kdp/publish">Publish a Book</Link>
+        <nav className="footer-nav-links">
+          <Link to="/">Explore Catalog</Link>
+          <Link to="/kdp">Creator Studio</Link>
+          <Link to="/kdp/publish">Publish a Title</Link>
           <Link to="/terms">Terms of Service</Link>
           <Link to="/privacy-policy">Privacy Policy</Link>
           <Link to="/refund-policy">Refund Policy</Link>
-          <Link to="/shipping-policy">Digital Delivery Policy</Link>
-          <Link to="/contact-us">Support &amp; Help</Link>
+          <Link to="/shipping-policy">Delivery Policy</Link>
+          <Link to="/contact-us">Help &amp; Support</Link>
         </nav>
-        <div className="footer-copyright">
-          © {new Date().getFullYear()} KDP Cloud (MediaVault). Created for Abikumar Dharmaraj &amp; Global Independent Authors. All rights reserved.
+
+        <div className="footer-copy-text">
+          © {new Date().getFullYear()} DigitalDeals. Built for Abikumar Dharmaraj &amp; Global Independent Creators. All rights reserved.
         </div>
       </footer>
     </div>
@@ -83,7 +86,7 @@ export default function App() {
       <Route path="/cart" element={<SiteLayout><ProtectedRoute><Cart /></ProtectedRoute></SiteLayout>} />
       <Route path="/wishlist" element={<SiteLayout><ProtectedRoute><Wishlist /></ProtectedRoute></SiteLayout>} />
       
-      {/* KDP Studio & Publisher routes */}
+      {/* Creator Studio & Publishing */}
       <Route path="/kdp" element={<SiteLayout><ProtectedRoute><KdpDashboard /></ProtectedRoute></SiteLayout>} />
       <Route path="/kdp/publish" element={<SiteLayout><ProtectedRoute><KdpPublishWizard /></ProtectedRoute></SiteLayout>} />
       <Route path="/publisher/profile" element={<SiteLayout><ProtectedRoute><PublisherProfile /></ProtectedRoute></SiteLayout>} />
