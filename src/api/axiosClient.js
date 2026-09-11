@@ -1,6 +1,7 @@
 import axios from 'axios'
- 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+
+// Always use same-origin relative URLs in production to leverage Vercel rewrites and bypass all CORS preflights
+export const API_BASE_URL = ''
  
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
